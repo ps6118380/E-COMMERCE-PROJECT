@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css"> 
+    <script>
+    
+    
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const signupForm = document.getElementById("signup-form");
+    const signinForm = document.getElementById("signin-form");
+
+    signupForm.addEventListener('submit', (event) => {
+        event.preventDefault(); // Prevent form submission to avoid page reload
+
+        let name = document.getElementById("name").value.trim();
+        let email = document.getElementById("email").value.trim();
+        let password = document.getElementById("password").value;
+        let confirmPassword = document.getElementById("confirm-password").value;
+
+        if (password === confirmPassword) {
+            // Store user's information in localStorage
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userPassword', password);
+
+            // Store user object under the name as a key
+            localStorage.setItem(name, JSON.stringify({ name: name, email: email, password: password }));
+
+            alert('Signup successful');
+
+            // Switch to the sign-in tab after successful signup
+            document.getElementById("signin-tab").checked = true;
+
+        } else {
+            alert("Password does not match");
+        }
+    });
+
+    signinForm.addEventListener("submit", (event) => {
+        event.preventDefault(); // Prevent form submission to avoid page reload
+
+        let signinEmail = document.getElementById("signin-email").value.trim();
+        let signinPassword = document.getElementById("signin-password").value;
+
+        const storageEmail = localStorage.getItem('userEmail');
+        const storagePassword = localStorage.getItem('userPassword');
+
+        if (signinEmail === storageEmail && signinPassword === storagePassword) {
+            alert("Login successful");
+
+            // Clear the sign-in form fields after successful login
+            document.getElementById("signin-email").value = "";
+            document.getElementById("signin-password").value = "";
+
+        } else {
+            alert("Email or password doesn't match");
+        }
+    });
+});
+
+
+
+    </script>
+</head>
+<body class="form-body">
+    <div class="form-container">
+        <!-- //tab  -->
+         <input type="radio" name="tab" id="signin-tab" checked>
+         <label class="form-lable" for="signin-tab">Sign In</label>
+
+         <!-- //tab  -->
+         <input type="radio" name="tab" id="signup-tab" >
+         <label class="form-lable" for="signup-tab">Sign Up</label>
+        <!-- //signin -->
+         <div class="form signin-form">
+            <h2>Sign in</h2>
+            <form id="signin-form" method="post" action="#" >
+                <input type="email" id="signin-email" class="email" name="email" placeholder="Email Address" required>
+                <input type="password" id="signin-password" name="password" class="password" placeholder="Password" required>
+                <button type="submit" class="signin-button">Sign In</button>
+                <p class="form-text">Don't have an account?<label class="form-lable" for="signin-text">Sign Up here</label> </p>
+             </form>
+         </div>
+
+         <!-- signup -->
+         <div class="form signup-form">
+            <h2>Sign Up</h2>
+            <form id="signup-form" method="post" action="#" >
+                <input type="text" id="name" class="name" name="name" placeholder="Full Name" required>
+                <input type="email" id="email" class="email" name="email" placeholder="Email Address" required>
+                <input type="password" id="password" name="password" class="password" placeholder="Password" required>
+                <input type="password" id="confirm-password" name="confirmpassword" class="password" placeholder="Confirm Password" required>
+                <button type="submit"  class="signup-button">Sign Up</button>
+                <p class="form-text">Already have an account?<label class="form-lable" for="signup-text">Sign In here</label> </p>
+             
+             </form>
+         </div>
+         
+
+    </div>
+</body>
+</html>
+
+
+
