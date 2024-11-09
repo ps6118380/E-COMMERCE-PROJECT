@@ -1,4 +1,4 @@
-# 📦 E-COMMERCE-PROJECT
+# 📦 E-COMMERCE PROJECT
 
 An interactive and user-friendly e-commerce platform with shopping cart, user authentication, and product management functionalities.
 
