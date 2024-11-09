@@ -58,4 +58,4 @@ This e-commerce project simulates an online shopping experience. Users can brows
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/e-commerce-project.git
+   git clone https://github.com/ps6118380/E-COMMERCE-PROJECT.git
