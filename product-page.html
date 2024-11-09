@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>product page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"></link>
+    <style>
+        body{
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .product-container h1{
+            margin-top:40px;
+            text-align:center;
+        }
+        .card-title{
+            font-weight:bold;
+            font-size:1.2rem;
+        }
+        .card{
+            box-shadow:0px 0px 15px rgba(0,0,0,0.1);
+            transition:transform 0.2s ease;
+            border-radius:10px;
+        }
+        .card:hover{
+            transform:translateY(-5px);
+            box-shadow:0px 5px 15px rgba(0,0,0,0.2);
+        }
+        .content{
+            padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+        }
+        .card-image{
+            border-top-left-radius:10px;
+            border-top-right-radius:10px;
+        }
+        .price{
+            color:rgb(150 145 145);
+        }
+        .quantity-input{
+            width: 40%;
+    margin-right: 10px;
+        }
+        .input-price{
+            margin-bottom: 30px;
+        }
+    </style>
+    </head>
+<body>
+    <div class="product-container container">
+        <h1 class="mb-4">E-Commerce Product Page</h1>
+        <!-- search and price range section -->
+        <div class="d-flex align-items-center input-price">
+            <input type="text" id="search" class="form-control mr-3" placeholder="search for products...">
+            <div class="select-wrapper" style="flex: 0 0 25%;">
+                <select id="price-range" class="form-control">
+                    <option value="">Select Price Range</option>
+                    <option value="0-50">Under $50</option>
+                    <option value="51-100">$51 - $100</option>
+                    <option value="101-200">$101 - $200</option>
+                    <option value="201-300">$201 - $300</option>
+                    <option value="301-500">$301 - $500</option>
+                    <option value="501-1000">$501 - $1000</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="cards_container" class="row">
+            
+        </div>
+
+        <div id="err-msg" class="err-msg"></div>
+    </div>
+    
+   <!-- <script src="products.js"></script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){
+        class product{
+            constructor(name,price,description, image){
+               this.name=name,
+               this.description = description;
+               this.image= image,
+               this.price= price
+            }
+
+            display(){
+                  
+                return `
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="card h-100">
+                          <img src="${this.image}" class="card-img-top card-image" alt="${this.name}">
+                          <div class="content card-body">
+                             <h4 class="card-title">${this.name}</h4>
+                             <p class="card-text">${this.description}</p>  <!-- Assuming 'description' for a second text line -->
+                             <p class="card-text price font-weight-bold">$${this.price.toFixed(2)}</p>
+                            
+                            <div class="d-flex align-items-center">
+                               <input type="number" class="quantity-input" value="1" min="1">
+                               <a href="#" class="btn btn-primary add-to-cart" data-product='${JSON.stringify(this)}'>Add to cart</a>  
+                            </div>
+                         </div>
+                       </div>
+                    </div>
+                `;
+            }
+        }
+        class discountedproduct extends product{
+            constructor(name,price,description, image,discount){
+               super(name,price,description, image);
+               this.discount = discount;
+            }
+
+            display(){
+                  const discountedprice = this.price - ( this.price * ( this.discount /100 ));
+                  return `
+                      <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                          <div class="card h-100">
+                            <img src="${this.image}" class="card-img-top card-image" alt="${this.name}">
+                            <div class="content card-body">
+                               <h4 class="card-title">${this.name}</h4>
+                               <p class="card-text">${this.description}</p>  <!-- Assuming 'description' for a second text line -->
+                               <p class="card-text price font-weight-bold">$${discountedprice.toFixed(2)}
+                               <span class="badge badge-danger">${this.discount}% OFF</span></p>
+                              <div class="d-flex align-items-center">
+                                 <input type="number" class="quantity-input" value="1" min="1">
+                                 <a href="#" class="btn btn-primary add-to-cart" data-product='${JSON.stringify(this)}'>Add to cart</a>  
+                              </div>
+                           </div>
+                         </div>
+                      </div>
+                  `;
+              }
+        }
+
+        const discountedProduct = new discountedproduct(
+            'dumy discount product ',
+            40.00,
+            'this is dummy discount product',
+            "https://via.placeholder.com/400x300?text=Discounted+Product",
+            30
+        )
+
+
+         fetch('products.json')
+         .then(response=>response.json())
+         .then(data=>{
+            window.products = data;
+            displayproducts(data);
+            const productcards = document.getElementById('cards_container');
+            productcards.innerHTML += discountedProduct.display();
+
+            attachEventListener();
+         })
+         .catch(error => {
+            console.error('error fetching products',error);
+            document.getElementById("err-msg").textContent = "Failed to load products. Please try again.";
+         });
+       
+        });
+
+
+        function displayproducts(products){
+            const productcards = document.getElementById('cards_container');
+            productcards.innerHTML = '';
+
+            products.forEach(product=>{
+                const card = document.createElement('div');
+                card.classList.add('col-lg-3', 'col-md-4', 'col-sm-6', 'mb-4');
+                card.innerHTML = `
+            <div class="card h-100">
+                <img src="${product.image}" class="card-img-top card-image" alt="${product.name}">
+                <div class="content card-body">
+                    <h4 class="card-title">${product.name}</h4>
+                    <p class="card-text">${product.description}</p>  <!-- Assuming 'description' for a second text line -->
+                    <p class="card-text price font-weight-bold">$${product.price.toFixed(2)}</p>
+                    <div class="d-flex align-items-center">
+                        <input type="number" class="quantity-input" value="1" min="1">
+                        <a href="#" class="btn btn-primary add-to-cart" data-product='${JSON.stringify(product)}'>Add to cart</a>  
+                    </div>
+                </div>
+            </div>
+        `;
+             productcards.appendChild(card);
+            });
+
+
+        attachEventListener();
+}
+      function attachEventListener(){
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+         button.addEventListener('click', (event) => {
+             event.preventDefault();
+        try{
+            const product = JSON.parse(event.target.getAttribute('data-product'));
+             const quantityInput = event.target.previousElementSibling;
+             const quantity = parseInt(quantityInput.value);
+             if(isNaN(quantity) || quantity<=0){
+               throw new Error('invalid quantity.')
+             }
+             addtocart(product, quantity);
+        }catch(error){
+                console.error("Error handling add-to-cart event:",error);
+               alert("Error adding product to cart , please check the quantity and try again");
+            }
+        });
+     });
+    }
+
+        
+        function addtocart(product,quantity){
+            let cartitem = JSON.parse(localStorage.getItem('cart'))||[];
+            const cartexist = cartitem.find(item=>item.name === product.name);
+            if(cartexist){
+                cartexist.quantity+=quantity;
+                
+            }else{
+                product.quantity = quantity;
+                cartitem.push(product);
+            }
+            localStorage.setItem("cart",JSON.stringify(cartitem));
+            alert("product added to cart");
+        }
+
+
+        function handlesearch(){
+            try{
+                const query = document.getElementById("search").value.toLowerCase();
+
+              const filteredproduct = window.products.filter(product =>
+            product.name.toLowerCase().includes(query) ||
+            product.description.toLowerCase().includes(query)
+        );
+
+              displayproducts(filteredproduct);
+            }catch(error){
+                console.error("Error handling search:",error);
+                document.getElementById("err-msg").textContent ="Failed to load products. Please try again.";
+            }
+            
+        }
+
+         //debounce function
+
+         function debounce(func,delay){
+                let timeId;
+                return function (...args){
+                    clearTimeout(timeId);
+                    timeId = setTimeout(()=> func.apply(this, args), delay);
+                };
+            }
+
+            //throttle function 
+            function throttle(func,limit){
+                let lastfunc;
+                let lastran = 0;
+                return function (...args) {
+                    const context = this;
+                    const now = Date.now();
+                    if(now - lastran >= limit){
+                        func.apply(context,args);
+                        lastran = now;
+                    }else{
+                        clearTimeout(lastfunc);
+                        lastfunc = setTimeout(function() {
+                            func.apply(context, args);
+                            lastran = now;
+                        },limit- (now - lastran));
+                    }
+                };
+            }
+
+            const searchinput = document.getElementById('search');
+            searchinput.addEventListener('input', debounce(function(){
+                handleSearch(this.value);
+            },3000));
+
+
+        function applyfilter() {
+    const query = document.getElementById('search').value.toLowerCase();
+    const pricerange = document.getElementById('price-range').value;
+
+    let minprice = 0;
+    let maxprice = Infinity;
+
+    if (pricerange) {
+        [minprice, maxprice] = pricerange.split('-').map(Number);
+    }
+
+    // Filter products based on query and price range
+    const filteredproduct = window.products.filter(product => {
+        const isnamematch = product.name.toLowerCase().includes(query);
+        const isdescriptionmatch = product.description.toLowerCase().includes(query);
+        const ispricematch = product.price >= minprice && product.price <= maxprice;
+
+        // Use && to ensure the product matches both the search query and the price range
+        return (isnamematch || isdescriptionmatch) && ispricematch;
+    });
+
+    displayproducts(filteredproduct);
+}
+        document.getElementById("search").addEventListener("input",handlesearch);
+        document.getElementById("price-range").addEventListener("change",applyfilter);
+        
+    </script>
+</body>
+</html>
